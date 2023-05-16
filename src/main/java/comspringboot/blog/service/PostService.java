@@ -6,12 +6,15 @@ import comspringboot.blog.paylod.PostDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface PostService {
     PostDto createPost(PostDto postDto);
 
     List<Post> getPost();
-    Optional<Post> getpostbyId(Long Id);
+    PostDto getpostbyId(Long Id);
+
+    PostDto updatepost(PostDto postDto, Long id);
+
+    void deleteById(Long id);
 }

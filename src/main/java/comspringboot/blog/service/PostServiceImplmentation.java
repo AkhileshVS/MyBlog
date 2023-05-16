@@ -1,13 +1,13 @@
 package comspringboot.blog.service;
 
 import comspringboot.blog.entity.Post;
+import comspringboot.blog.exception.ResourceNotFoundException;
 import comspringboot.blog.paylod.PostDto;
 import comspringboot.blog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PostServiceImplmentation implements PostService{
@@ -23,11 +23,20 @@ public class PostServiceImplmentation implements PostService{
         this.postRepository = postRepository;
     }
 
-
+    private PostDto mapToDto(Post post1){
+        PostDto postDto1 = new PostDto();
+        postDto1.setId(post1.getId());
+        postDto1.setContent(post1.getContent());
+        postDto1.setTitle(post1.getTitle());
+        postDto1.setDescription(post1.getDescription());
+        return postDto1;
+    }
 
     @Override
-    public Optional<Post> getpostbyId(Long id) {
-        return postRepository.findById(id);
+    public PostDto getpostbyId(Long id) {
+
+       Post post =  postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", id));
+        return mapToDto(post);
     }
 
     @Override
@@ -37,14 +46,27 @@ public class PostServiceImplmentation implements PostService{
         post.setContent(postDto.getContent());
         post.setDescription(postDto.getDescription());
 
-     Post post1 =    postRepository.save(post);
+     Post post1 =   postRepository.save(post);
 
-    PostDto postDto1 = new PostDto();
-    postDto1.setId(post1.getId());
-    postDto1.setContent(post1.getContent());
-    postDto1.setTitle(post1.getTitle());
-    postDto1.setDescription(post1.getDescription());
 
-        return postDto1;
+
+        return mapToDto(post1);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Posst","Id",id));
+        postRepository.delete(post);
+    }
+
+    @Override
+    public PostDto updatepost(PostDto postDto, Long id) {
+        Post post = postRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Post","id",id));
+        post.setTitle(postDto.getTitle());
+        post.setDescription(postDto.getDescription());
+        post.setContent(postDto.getContent());
+
+      Post updatepost =  postRepository.save(post);
+    return mapToDto(updatepost);
     }
 }

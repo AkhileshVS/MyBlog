@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts/")
@@ -24,7 +23,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Post>> getPostByid(@PathVariable(name="id") Long id){
+    public ResponseEntity<PostDto> getPostByid(@PathVariable(name="id") Long id){
         //return new ResponseEntity<>(,HttpStatus.OK);
         return ResponseEntity.ok(postService.getpostbyId(id));
     }
@@ -34,6 +33,18 @@ public class PostController {
 
         ResponseEntity responseEntity = new ResponseEntity<>( postService.createPost(postdto),HttpStatus.CREATED);
         return responseEntity;
+
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto,@PathVariable(value = "id") Long id){
+        return  new ResponseEntity<>(postService.updatepost(postDto,id),HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public  ResponseEntity<String> deleteById(@PathVariable(value = "id") Long id){
+        postService.deleteById(id);
+        return  new ResponseEntity<>("Post Deleted Succesfully!!.",HttpStatus.OK);
 
     }
 
