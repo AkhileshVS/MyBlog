@@ -47,14 +47,7 @@ public class PostServiceImplmentation implements PostService{
         this.postRepository = postRepository;
     }
 
-    private PostDto mapToDto(Post post1){
-        PostDto postDto1 = new PostDto();
-        postDto1.setId(post1.getId());
-        postDto1.setContent(post1.getContent());
-        postDto1.setTitle(post1.getTitle());
-        postDto1.setDescription(post1.getDescription());
-        return postDto1;
-    }
+
 
     @Override
     public PostDto getpostbyId(Long id) {
@@ -92,5 +85,13 @@ public class PostServiceImplmentation implements PostService{
 
       Post updatepost =  postRepository.save(post);
     return mapToDto(updatepost);
+    }
+    private PostDto mapToDto(Post post1){
+        PostDto postDto1 = new PostDto();
+        postDto1.setId(post1.getId());
+        postDto1.setContent(post1.getContent());
+        postDto1.setTitle(post1.getTitle());
+        postDto1.setDescription(post1.getDescription());
+        return postDto1;
     }
 }
