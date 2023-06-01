@@ -3,11 +3,17 @@ package comspringboot.blog.service;
 import comspringboot.blog.entity.Post;
 import comspringboot.blog.exception.ResourceNotFoundException;
 import comspringboot.blog.paylod.PostDto;
+import comspringboot.blog.paylod.PostResponse;
 import comspringboot.blog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImplmentation implements PostService{
@@ -15,22 +21,33 @@ public class PostServiceImplmentation implements PostService{
     private PostRepository postRepository;
 
     @Override
-    public List<Post> getPost() {
-        return postRepository.findAll();
+    public PostResponse getPost(int pageno, int pagesize,String sortBy,String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageno,pagesize, sort);
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<Post> ListOfPosts = posts.getContent();
+
+        List<PostDto> content = ListOfPosts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNo(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalElements((int) posts.getTotalElements());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setLast(posts.isLast());
+
+        return postResponse;
     }
+
 
     public PostServiceImplmentation(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
 
-    private PostDto mapToDto(Post post1){
-        PostDto postDto1 = new PostDto();
-        postDto1.setId(post1.getId());
-        postDto1.setContent(post1.getContent());
-        postDto1.setTitle(post1.getTitle());
-        postDto1.setDescription(post1.getDescription());
-        return postDto1;
-    }
+
 
     @Override
     public PostDto getpostbyId(Long id) {
@@ -68,5 +85,13 @@ public class PostServiceImplmentation implements PostService{
 
       Post updatepost =  postRepository.save(post);
     return mapToDto(updatepost);
+    }
+    private PostDto mapToDto(Post post1){
+        PostDto postDto1 = new PostDto();
+        postDto1.setId(post1.getId());
+        postDto1.setContent(post1.getContent());
+        postDto1.setTitle(post1.getTitle());
+        postDto1.setDescription(post1.getDescription());
+        return postDto1;
     }
 }
